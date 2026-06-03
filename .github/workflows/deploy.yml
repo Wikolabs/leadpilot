@@ -35,6 +35,7 @@ jobs:
           VM_USER: ${{ secrets.WIKOLABS_VM_USER }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GHCR_USER: ${{ github.actor }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: |
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
@@ -42,4 +43,4 @@ jobs:
           ssh-keyscan -H "$VM_HOST" >> ~/.ssh/known_hosts 2>/dev/null
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no "$VM_USER@$VM_HOST" "mkdir -p ~/wk/leadpilot"
           scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no docker-compose.yml "$VM_USER@$VM_HOST:~/wk/leadpilot/docker-compose.yml"
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no "$VM_USER@$VM_HOST" "cd ~/wk/leadpilot && echo '$GHCR_TOKEN' | docker login ghcr.io -u '$GHCR_USER' --password-stdin && (docker network create wkdemo-net 2>/dev/null || true) && (docker stop leadpilot leadpilot-backend scoreflow scoreflow-backend 2>/dev/null; docker rm leadpilot leadpilot-backend scoreflow scoreflow-backend 2>/dev/null; true) && docker compose pull && docker compose up -d && echo 'Deployed leadpilot stack (frontend on 3004, backend internal)'"
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no "$VM_USER@$VM_HOST" "cd ~/wk/leadpilot && echo '$GHCR_TOKEN' | docker login ghcr.io -u '$GHCR_USER' --password-stdin && (docker network create wkdemo-net 2>/dev/null || true) && (docker stop leadpilot leadpilot-backend scoreflow scoreflow-backend 2>/dev/null; docker rm leadpilot leadpilot-backend scoreflow scoreflow-backend 2>/dev/null; true) && GROQ_API_KEY='$GROQ_API_KEY' docker compose pull && GROQ_API_KEY='$GROQ_API_KEY' docker compose up -d && echo 'Deployed leadpilot stack (frontend on 3004, backend internal)'"

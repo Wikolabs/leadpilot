@@ -14,6 +14,7 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: "sqlite:////data/leadpilot.db"
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
     volumes:
       - lp_data:/data
     networks:

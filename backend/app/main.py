@@ -1,6 +1,6 @@
 """LeadPilot — API de qualification de leads B2B (MVP exécutable).
 
-Pipeline synchrone : webhook -> enrichissement -> scoring ICP -> routing.
+Pipeline synchrone : webhook -> enrichissement -> analyse du message -> scoring ICP -> routing.
 Sert aussi un dashboard intégré sur `/`.
 """
 import os
@@ -11,14 +11,16 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from .database import Base, engine, get_db
+from .database import Base, engine, get_db, run_migrations
 from .enrichment import enrich
+from .message_scorer import extract_signals, MAX_MESSAGE_SCORE
 from .models import Lead
 from .scoring import DEFAULT_ICP, score_lead
 
 Base.metadata.create_all(bind=engine)
+run_migrations()
 
-app = FastAPI(title="LeadPilot", description="Qualification de leads B2B en pilote automatique", version="0.1.0")
+app = FastAPI(title="LeadPilot", description="Qualification de leads B2B en pilote automatique", version="0.2.0")
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "..", "static")
 
@@ -29,20 +31,22 @@ class WebhookPayload(BaseModel):
     message: str | None = None
 
 
-def process_lead(db: Session, email: str, full_name: str, source: str) -> Lead:
-    """Cœur du pipeline : enrichit, score, route et persiste."""
+def process_lead(db: Session, email: str, full_name: str, source: str, message: str = "") -> Lead:
+    """Cœur du pipeline : enrichit, analyse message, score, route et persiste."""
     enr = enrich(email)
-    score, breakdown, status = score_lead(enr)
+    msg_score, msg_signals = extract_signals(message)
+    score, breakdown, status = score_lead(enr, message_score=msg_score)
     lead = Lead(
         email=email, full_name=full_name or "", source=source,
         score=score, status=status, enrichment=enr, breakdown=breakdown,
+        message=message or "", message_score=msg_score, message_signals=msg_signals,
     )
     db.add(lead)
     db.commit()
     db.refresh(lead)
     # Effets de bord simulés (en prod : CRM / email). Loggés pour la démo.
     if status == "qualified":
-        print(f"[CRM] upsert {email} (score {score}) -> Pipedrive + notif commerciale")
+        print(f"[CRM] upsert {email} (score {score}, intent +{msg_score}) -> Pipedrive + notif commerciale")
     else:
         print(f"[MAIL] email de refus poli -> {email} (score {score})")
     return lead
@@ -50,8 +54,13 @@ def process_lead(db: Session, email: str, full_name: str, source: str) -> Lead:
 
 @app.post("/api/v1/webhook/{source}")
 def webhook(source: str, payload: WebhookPayload, db: Session = Depends(get_db)):
-    lead = process_lead(db, payload.email, payload.full_name or "", source)
-    return {"lead_id": lead.id, "score": lead.score, "status": lead.status}
+    lead = process_lead(db, payload.email, payload.full_name or "", source, payload.message or "")
+    return {
+        "lead_id": lead.id,
+        "score": lead.score,
+        "status": lead.status,
+        "message_score": lead.message_score,
+    }
 
 
 @app.get("/api/v1/leads")
@@ -70,7 +79,7 @@ def get_lead(lead_id: str, db: Session = Depends(get_db)):
 
 @app.get("/api/v1/icp")
 def get_icp():
-    return DEFAULT_ICP
+    return {**DEFAULT_ICP, "max_message_score": MAX_MESSAGE_SCORE}
 
 
 @app.get("/api/v1/analytics/funnel")

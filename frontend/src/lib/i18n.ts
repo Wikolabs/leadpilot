@@ -52,6 +52,11 @@ export const translations = {
       title: "Simuler une soumission de formulaire",
       email: "Email",
       name: "Nom complet",
+      message: "Message du prospect (intention d'achat)",
+      messagePlaceholder:
+        "Bonjour, nous évaluons des outils ce trimestre, budget 50k EUR, déjà sur HubSpot...",
+      messageHint:
+        "Analyse contextuelle : budget, timing, besoin, concurrent cité (+30 pts max).",
       submit: "Qualifier le lead",
       examples: "Exemples :",
       ex: {
@@ -68,6 +73,7 @@ export const translations = {
       role: "Poste",
       size: "Taille",
       score: "Score",
+      intent: "Intent",
       status: "Statut",
       source: "Source",
       empty: "Aucun lead. Soumets-en un ci-dessus.",
@@ -155,6 +161,11 @@ export const translations = {
       title: "Simulate a form submission",
       email: "Email",
       name: "Full name",
+      message: "Prospect message (purchase intent)",
+      messagePlaceholder:
+        "Hi, we're evaluating tools this quarter, budget 50k EUR, already on HubSpot...",
+      messageHint:
+        "Contextual analysis: budget, timing, need, competitor mentioned (+30 pts max).",
       submit: "Qualify lead",
       examples: "Examples:",
       ex: {
@@ -171,6 +182,7 @@ export const translations = {
       role: "Role",
       size: "Size",
       score: "Score",
+      intent: "Intent",
       status: "Status",
       source: "Source",
       empty: "No leads yet. Submit one above.",

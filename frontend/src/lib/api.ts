@@ -8,6 +8,17 @@ export type Enrichment = {
   is_personal?: boolean;
 };
 
+export type MessageSignals = {
+  budget_mentioned?: boolean;
+  budget_eur?: number | null;
+  timing_mentioned?: boolean;
+  timing_days?: number | null;
+  has_specific_need?: boolean;
+  mentions_competitor?: boolean;
+  urgency_score?: number;
+  reason?: string;
+};
+
 export type Lead = {
   id: string;
   email: string;
@@ -17,6 +28,9 @@ export type Lead = {
   status: "qualified" | "rejected" | "received";
   enrichment: Enrichment;
   breakdown: Record<string, number | string>;
+  message: string;
+  message_score: number;
+  message_signals: MessageSignals;
   created_at: string;
 };
 
@@ -36,9 +50,9 @@ const json = (path: string, init?: RequestInit) =>
 export const getLeads = (): Promise<Lead[]> => json("/leads");
 export const getFunnel = (): Promise<Funnel> => json("/analytics/funnel");
 
-export const submitLead = (email: string, full_name: string) =>
+export const submitLead = (email: string, full_name: string, message: string = "") =>
   json("/webhook/dashboard", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, full_name }),
+    body: JSON.stringify({ email, full_name, message }),
   });

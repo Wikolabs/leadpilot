@@ -1,4 +1,8 @@
-"""Moteur de scoring ICP — score pondéré 0–100 + verdict cible / hors-cible."""
+"""Moteur de scoring ICP — score pondéré 0–100 + verdict cible / hors-cible.
+
+Total = score_icp (0-100) + score_message (0-30), plafonné à 100.
+Le score message peut donc transformer un lead borderline (60-69) en lead qualifié.
+"""
 
 DEFAULT_ICP = {
     "name": "ICP B2B par défaut",
@@ -11,8 +15,13 @@ DEFAULT_ICP = {
 }
 
 
-def score_lead(enr: dict, icp: dict = DEFAULT_ICP):
-    """Retourne (score: int, breakdown: dict, status: str)."""
+def score_lead(enr: dict, message_score: int = 0, icp: dict = DEFAULT_ICP):
+    """Retourne (score: int, breakdown: dict, status: str).
+
+    Args:
+        enr: données firmographiques enrichies.
+        message_score: bonus 0-30 dérivé du message du prospect.
+    """
     weights = icp["weights"]
 
     # Disqualification immédiate : email perso / pas d'entreprise
@@ -33,6 +42,9 @@ def score_lead(enr: dict, icp: dict = DEFAULT_ICP):
     breakdown["industry"] = weights["industry"] if enr.get("industry") in icp["industries"] else 0
     breakdown["country"] = weights["country"] if enr.get("country") in icp["countries"] else 0
 
-    score = sum(breakdown.values())
-    status = "qualified" if score >= icp["threshold"] else "rejected"
-    return score, breakdown, status
+    icp_score = sum(breakdown.values())
+    breakdown["message"] = max(0, int(message_score))
+    total = min(100, icp_score + breakdown["message"])
+
+    status = "qualified" if total >= icp["threshold"] else "rejected"
+    return total, breakdown, status

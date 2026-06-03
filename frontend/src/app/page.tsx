@@ -28,8 +28,8 @@ export default function Dashboard() {
   }, [refresh]);
 
   const handleSubmit = useCallback(
-    async (email: string, name: string) => {
-      await submitLead(email, name);
+    async (email: string, name: string, message: string) => {
+      await submitLead(email, name, message);
       refresh();
     },
     [refresh],

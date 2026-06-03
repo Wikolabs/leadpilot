@@ -2,7 +2,7 @@
 import datetime
 import uuid
 
-from sqlalchemy import String, Integer, DateTime, JSON
+from sqlalchemy import String, Integer, DateTime, JSON, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .database import Base
@@ -23,6 +23,9 @@ class Lead(Base):
     status: Mapped[str] = mapped_column(String, default="received")  # qualified | rejected
     enrichment: Mapped[dict] = mapped_column(JSON, default=dict)
     breakdown: Mapped[dict] = mapped_column(JSON, default=dict)
+    message: Mapped[str] = mapped_column(Text, default="")
+    message_score: Mapped[int] = mapped_column(Integer, default=0)
+    message_signals: Mapped[dict] = mapped_column(JSON, default=dict)
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime, default=datetime.datetime.utcnow
     )
@@ -37,5 +40,8 @@ class Lead(Base):
             "status": self.status,
             "enrichment": self.enrichment,
             "breakdown": self.breakdown,
+            "message": self.message,
+            "message_score": self.message_score,
+            "message_signals": self.message_signals,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
