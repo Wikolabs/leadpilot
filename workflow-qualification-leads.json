@@ -1,0 +1,296 @@
+{
+  "name": "Qualification de Leads B2B - Google Forms / Hunter / Pipedrive",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Qualification de Leads B2B — Pilote automatique\n\n**Flux**\n1. Google Forms écrit les réponses dans une feuille Google Sheets liée.\n2. Ce workflow détecte chaque nouvelle ligne.\n3. Hunter.io enrichit l'email (entreprise, taille, poste).\n4. Un scoring décide : cible ou hors-cible.\n5. **Cible** → création dans Pipedrive + notif équipe commerciale.\n6. **Hors-cible** → email de refus poli automatisé.\n\n**À configurer**\n- Credential Google Sheets (Trigger) : ID du Sheet lié au Formulaire.\n- Variable d'env `HUNTER_API_KEY`.\n- Credential Pipedrive.\n- Credential Gmail (notif + refus).\n- Adapter les colonnes du Sheet (Email, Prénom...) et les seuils ICP dans le nœud `Scoring ICP`.",
+        "height": 460,
+        "width": 420,
+        "color": 4
+      },
+      "id": "a1b2c3d4-0001-4000-8000-000000000001",
+      "name": "Notice",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-380, -120]
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Réponses au formulaire 1"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0002-4000-8000-000000000002",
+      "name": "Nouvelle réponse Google Forms",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [100, 100],
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "REPLACE_WITH_GOOGLE_SHEETS_CRED_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.hunter.io/v2/combined/find",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "email",
+              "value": "={{ $json.Email || $json['Adresse e-mail'] || $json['Email Address'] }}"
+            },
+            {
+              "name": "api_key",
+              "value": "={{ $env.HUNTER_API_KEY }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "a1b2c3d4-0003-4000-8000-000000000003",
+      "name": "Enrichissement Hunter.io",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [320, 100]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ─────────────────────────────────────────────\n// Scoring ICP (Ideal Customer Profile)\n// Adaptez les seuils et mots-clés à votre cible.\n// ─────────────────────────────────────────────\n\nconst TAILLE_MIN = 20;              // employés minimum\nconst SENIORITE_CIBLE = ['executive', 'director', 'vp', 'manager', 'senior'];\nconst MOTS_CLES_POSTE = ['ceo', 'cto', 'cmo', 'cfo', 'founder', 'head', 'director', 'directeur', 'responsable', 'manager', 'lead'];\n\nconst out = [];\n\nfor (const item of $input.all()) {\n  const form = item.json;\n  const data = (form.data) || {};        // réponse Hunter (combined/find)\n  const person = data.person || {};\n  const company = data.company || {};\n  const employment = person.employment || {};\n\n  // Champs normalisés (avec repli sur les colonnes du formulaire)\n  const email = data.email || form.Email || form['Adresse e-mail'] || form['Email Address'] || '';\n  const fullName = (person.name && person.name.fullName)\n    || [form.Prénom, form.Nom].filter(Boolean).join(' ')\n    || form['Nom complet'] || email.split('@')[0];\n  const companyName = company.name || (employment && employment.name) || '';\n  const employees = (company.metrics && company.metrics.employees) || 0;\n  const title = employment.title || form.Poste || '';\n  const seniority = (employment.seniority || '').toLowerCase();\n  const industry = (company.category && company.category.industry) || '';\n\n  // ── Critères de qualification ──\n  const tailleOk = employees >= TAILLE_MIN;\n  const senioriteOk = SENIORITE_CIBLE.includes(seniority);\n  const posteOk = MOTS_CLES_POSTE.some(k => title.toLowerCase().includes(k));\n  const aEntreprise = companyName.length > 0;\n\n  // Score simple (0–4)\n  let score = 0;\n  if (tailleOk) score++;\n  if (senioriteOk) score++;\n  if (posteOk) score++;\n  if (aEntreprise) score++;\n\n  // Qualifié si entreprise identifiée ET (décideur OU bonne taille)\n  const qualified = aEntreprise && (senioriteOk || posteOk || tailleOk);\n\n  out.push({\n    json: {\n      email,\n      fullName,\n      companyName,\n      employees,\n      title,\n      seniority,\n      industry,\n      score,\n      qualified,\n      raisonsScore: { tailleOk, senioriteOk, posteOk, aEntreprise }\n    }\n  });\n}\n\nreturn out;"
+      },
+      "id": "a1b2c3d4-0004-4000-8000-000000000004",
+      "name": "Scoring ICP",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [540, 100]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-qualified",
+              "leftValue": "={{ $json.qualified }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0005-4000-8000-000000000005",
+      "name": "Lead qualifié ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [760, 100]
+    },
+    {
+      "parameters": {
+        "resource": "person",
+        "operation": "create",
+        "name": "={{ $json.fullName }}",
+        "additionalFields": {
+          "email": ["={{ $json.email }}"],
+          "org_name": "={{ $json.companyName }}"
+        }
+      },
+      "id": "a1b2c3d4-0006-4000-8000-000000000006",
+      "name": "Pipedrive — Créer Personne",
+      "type": "n8n-nodes-base.pipedrive",
+      "typeVersion": 1,
+      "position": [1000, -60],
+      "credentials": {
+        "pipedriveApi": {
+          "id": "REPLACE_WITH_PIPEDRIVE_CRED_ID",
+          "name": "Pipedrive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "deal",
+        "operation": "create",
+        "title": "={{ $json.companyName }} — {{ $json.fullName }} (score {{ $json.score }}/4)",
+        "associateWith": "person",
+        "person_id": "={{ $json.id }}",
+        "additionalFields": {}
+      },
+      "id": "a1b2c3d4-0007-4000-8000-000000000007",
+      "name": "Pipedrive — Créer Deal",
+      "type": "n8n-nodes-base.pipedrive",
+      "typeVersion": 1,
+      "position": [1220, -60],
+      "credentials": {
+        "pipedriveApi": {
+          "id": "REPLACE_WITH_PIPEDRIVE_CRED_ID",
+          "name": "Pipedrive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "commercial@votre-entreprise.com",
+        "subject": "🎯 Nouveau lead qualifié : {{ $('Scoring ICP').item.json.companyName }}",
+        "emailType": "html",
+        "message": "<h2>Nouveau lead qualifié (score {{ $('Scoring ICP').item.json.score }}/4)</h2>\n<ul>\n  <li><b>Nom :</b> {{ $('Scoring ICP').item.json.fullName }}</li>\n  <li><b>Email :</b> {{ $('Scoring ICP').item.json.email }}</li>\n  <li><b>Entreprise :</b> {{ $('Scoring ICP').item.json.companyName }}</li>\n  <li><b>Taille :</b> {{ $('Scoring ICP').item.json.employees }} employés</li>\n  <li><b>Poste :</b> {{ $('Scoring ICP').item.json.title }}</li>\n  <li><b>Secteur :</b> {{ $('Scoring ICP').item.json.industry }}</li>\n</ul>\n<p>➡️ Fiche créée dans Pipedrive. À contacter rapidement.</p>",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0008-4000-8000-000000000008",
+      "name": "Notifier l'équipe commerciale",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [1440, -60],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_WITH_GMAIL_CRED_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "Merci pour votre intérêt",
+        "emailType": "html",
+        "message": "<p>Bonjour {{ $json.fullName }},</p>\n<p>Merci d'avoir pris le temps de remplir notre formulaire et pour l'intérêt porté à nos services.</p>\n<p>Après étude, il apparaît que notre offre n'est pas la mieux adaptée à votre besoin actuel. Nous préférons être transparents plutôt que de vous faire perdre du temps.</p>\n<p>N'hésitez pas à revenir vers nous si votre situation évolue — nous serons ravis d'en rediscuter.</p>\n<p>Bien cordialement,<br>L'équipe commerciale</p>",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0009-4000-8000-000000000009",
+      "name": "Email de refus poli",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [1000, 240],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_WITH_GMAIL_CRED_ID",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Nouvelle réponse Google Forms": {
+      "main": [
+        [
+          {
+            "node": "Enrichissement Hunter.io",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enrichissement Hunter.io": {
+      "main": [
+        [
+          {
+            "node": "Scoring ICP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scoring ICP": {
+      "main": [
+        [
+          {
+            "node": "Lead qualifié ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead qualifié ?": {
+      "main": [
+        [
+          {
+            "node": "Pipedrive — Créer Personne",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email de refus poli",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pipedrive — Créer Personne": {
+      "main": [
+        [
+          {
+            "node": "Pipedrive — Créer Deal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pipedrive — Créer Deal": {
+      "main": [
+        [
+          {
+            "node": "Notifier l'équipe commerciale",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": [
+    {
+      "name": "B2B"
+    },
+    {
+      "name": "Qualification Leads"
+    }
+  ]
+}

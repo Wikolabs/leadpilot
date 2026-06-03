@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LeadPilot — Dashboard</title>
+  <style>
+    :root { --bg:#0f172a; --card:#1e293b; --ink:#e2e8f0; --muted:#94a3b8;
+            --green:#22c55e; --red:#ef4444; --blue:#3b82f6; --border:#334155; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:system-ui,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--ink); }
+    header { padding:24px 32px; border-bottom:1px solid var(--border); }
+    h1 { margin:0; font-size:22px; } h1 span { color:var(--blue); }
+    .sub { color:var(--muted); font-size:13px; margin-top:4px; }
+    main { padding:24px 32px; max-width:1100px; margin:0 auto; }
+    .funnel { display:flex; gap:12px; margin-bottom:24px; flex-wrap:wrap; }
+    .stat { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px 20px; flex:1; min-width:140px; }
+    .stat .n { font-size:28px; font-weight:700; } .stat .l { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.5px; }
+    .panel { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:24px; }
+    .panel h2 { margin:0 0 14px; font-size:15px; }
+    form { display:flex; gap:10px; flex-wrap:wrap; align-items:end; }
+    label { display:flex; flex-direction:column; font-size:12px; color:var(--muted); gap:4px; }
+    input { background:#0b1220; border:1px solid var(--border); color:var(--ink); padding:8px 10px; border-radius:8px; min-width:240px; }
+    button { background:var(--blue); color:#fff; border:0; padding:9px 16px; border-radius:8px; cursor:pointer; font-weight:600; }
+    button:hover { filter:brightness(1.1); }
+    .quick { margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; }
+    .quick button { background:#334155; font-weight:500; font-size:12px; padding:6px 10px; }
+    table { width:100%; border-collapse:collapse; }
+    th,td { text-align:left; padding:10px 8px; border-bottom:1px solid var(--border); font-size:13px; }
+    th { color:var(--muted); font-weight:600; font-size:11px; text-transform:uppercase; }
+    .badge { padding:3px 9px; border-radius:999px; font-size:11px; font-weight:700; }
+    .qualified { background:rgba(34,197,94,.15); color:var(--green); }
+    .rejected { background:rgba(239,68,68,.15); color:var(--red); }
+    .gauge { display:inline-flex; align-items:center; gap:8px; }
+    .bar { width:60px; height:6px; background:#0b1220; border-radius:3px; overflow:hidden; }
+    .bar > i { display:block; height:100%; }
+    .muted { color:var(--muted); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Lead<span>Pilot</span></h1>
+    <div class="sub">Qualification de leads B2B en pilote automatique — enrichissement + scoring ICP</div>
+  </header>
+  <main>
+    <div class="funnel" id="funnel"></div>
+
+    <div class="panel">
+      <h2>Simuler une soumission de formulaire</h2>
+      <form id="leadForm">
+        <label>Email
+          <input id="email" type="email" placeholder="marie@acme-corp.com" required />
+        </label>
+        <label>Nom complet
+          <input id="name" type="text" placeholder="Marie Dupont" />
+        </label>
+        <button type="submit">Qualifier le lead</button>
+      </form>
+      <div class="quick">
+        <span class="muted" style="align-self:center;font-size:12px">Exemples :</span>
+        <button data-email="marie@acme-corp.com" data-name="Marie Dupont">acme-corp.com (cible)</button>
+        <button data-email="paul@globex.io" data-name="Paul Martin">globex.io (cible)</button>
+        <button data-email="jean@gmail.com" data-name="Jean Bricoleur">gmail.com (perso)</button>
+        <button data-email="leo@startup-tiny.fr" data-name="Léo Petit">startup-tiny.fr (trop petit)</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Leads qualifiés</h2>
+      <table>
+        <thead><tr><th>Email</th><th>Entreprise</th><th>Poste</th><th>Taille</th><th>Score</th><th>Statut</th><th>Source</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    const api = (p, o) => fetch('/api/v1' + p, o).then(r => r.json());
+
+    function gauge(score) {
+      const color = score >= 70 ? 'var(--green)' : score >= 40 ? '#eab308' : 'var(--red)';
+      return `<span class="gauge"><b>${score}</b><span class="bar"><i style="width:${score}%;background:${color}"></i></span></span>`;
+    }
+
+    async function refresh() {
+      const f = await api('/analytics/funnel');
+      document.getElementById('funnel').innerHTML = [
+        ['Reçus', f.received], ['Qualifiés', f.qualified],
+        ['Hors-cible', f.rejected], ['Taux qualif.', (f.qualification_rate*100).toFixed(0)+'%']
+      ].map(([l,n]) => `<div class="stat"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
+
+      const leads = await api('/leads');
+      document.getElementById('rows').innerHTML = leads.map(l => {
+        const e = l.enrichment || {};
+        return `<tr>
+          <td>${l.email}</td>
+          <td>${e.company_name || '<span class="muted">—</span>'}</td>
+          <td>${e.title || '<span class="muted">—</span>'}</td>
+          <td>${e.employees ? e.employees : '<span class="muted">—</span>'}</td>
+          <td>${gauge(l.score)}</td>
+          <td><span class="badge ${l.status}">${l.status === 'qualified' ? 'CIBLE' : 'HORS-CIBLE'}</span></td>
+          <td class="muted">${l.source}</td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="7" class="muted">Aucun lead. Soumets-en un ci-dessus.</td></tr>';
+    }
+
+    async function submitLead(email, full_name) {
+      await api('/webhook/dashboard', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ email, full_name })
+      });
+      refresh();
+    }
+
+    document.getElementById('leadForm').addEventListener('submit', e => {
+      e.preventDefault();
+      submitLead(document.getElementById('email').value, document.getElementById('name').value);
+      e.target.reset();
+    });
+    document.querySelectorAll('.quick button').forEach(b =>
+      b.addEventListener('click', () => submitLead(b.dataset.email, b.dataset.name)));
+
+    refresh();
+  </script>
+</body>
+</html>

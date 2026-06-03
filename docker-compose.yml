@@ -1,0 +1,23 @@
+# MVP exécutable : backend FastAPI (SQLite) + frontend Next.js, exposé sur le port 3022.
+# La stack complète (Postgres, Redis, Celery, Nginx) est décrite dans le README.
+services:
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: "sqlite:////data/leadpilot.db"
+    volumes:
+      - lp_data:/data
+    expose:
+      - "8000"
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Figé dans le build Next.js : cible du proxy /api -> service backend.
+        BACKEND_URL: "http://backend:8000"
+    ports:
+      - "3022:3000"
+    depends_on:
+      - backend
+volumes:
+  lp_data:
