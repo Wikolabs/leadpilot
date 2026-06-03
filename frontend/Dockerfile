@@ -1,4 +1,4 @@
-FROM node:20-alpine AS deps
+﻿FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json ./
 RUN npm install
@@ -6,7 +6,7 @@ RUN npm install
 FROM node:20-alpine AS build
 WORKDIR /app
 # Next.js fige les rewrites au build -> BACKEND_URL doit être connu ici.
-ARG BACKEND_URL=http://localhost:3022
+ARG BACKEND_URL=http://backend:8000
 ENV BACKEND_URL=$BACKEND_URL
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .

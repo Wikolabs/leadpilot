@@ -1,4 +1,4 @@
-# LeadPilot — Qualification de leads B2B en pilote automatique (Enrichissement + Scoring ICP)
+﻿# LeadPilot — Qualification de leads B2B en pilote automatique (Enrichissement + Scoring ICP)
 
 > Ne perdez plus de temps avec les faux profils. Enrichissement + scoring ICP en < 2s. 97% des profils hors-cible filtrés avant votre CRM. Déployé en 1 heure.
 
@@ -14,7 +14,7 @@
 LeadPilot est une plateforme d'automatisation commerciale qui qualifie les leads B2B sans intervention humaine. Un prospect remplit un formulaire (Typeform, Tally, Google Forms) ; LeadPilot capte la soumission, **enrichit** l'email via Hunter.io / Clearbit (entreprise, taille, poste, secteur), applique un **scoring ICP** configurable, puis route automatiquement : les leads cibles sont créés dans le CRM (Pipedrive / HubSpot) avec notification commerciale, les hors-cible reçoivent un email de refus poli. Applications : SDR augmentés, RevOps, inbound à fort volume.
 
 **Domaine :** Sales Automation / RevOps / B2B Lead Intelligence  
-**Port VM :** 3022 | **Sous-domaine :** leadpilot.wikolabs.com
+**Port VM :** 3004 | **Sous-domaine :** leadpilot.wikolabs.com
 
 ---
 
@@ -24,7 +24,7 @@ LeadPilot est une plateforme d'automatisation commerciale qui qualifie les leads
 |---|---|
 | [`backend/`](backend/) | API **FastAPI** exécutable : webhook → enrichissement → scoring ICP → routing (SQLite, tests inclus) |
 | [`frontend/`](frontend/) | **Next.js 14** : landing + dashboard, sélecteur **FR/EN**, visuel du workflow n8n, démo interactive, responsive |
-| [`docker-compose.yml`](docker-compose.yml) | Lancement tout-en-un (backend + frontend) sur le port 3022 |
+| [`docker-compose.yml`](docker-compose.yml) | Lancement tout-en-un (backend + frontend) sur le port 3004 |
 | [`workflow-qualification-leads.json`](workflow-qualification-leads.json) | Variante **no-code** du même flux, importable dans n8n |
 | [`RUN.md`](RUN.md) | Comment lancer et tester (local ou Docker) |
 | [`SCENARIO.md`](SCENARIO.md) | Script de démonstration de bout en bout |
@@ -46,7 +46,7 @@ LeadPilot est une plateforme d'automatisation commerciale qui qualifie les leads
 | Queue | Celery + Redis | Enrichissement & scoring asynchrones |
 | Storage | PostgreSQL 16 | Leads, enrichments, profils ICP, audit |
 | Cache | Redis | Cache enrichissement (anti-quota API) |
-| Infra | Docker Compose, Nginx | VM mono-repo (port 3022) |
+| Infra | Docker Compose, Nginx | VM mono-repo (port 3004) |
 
 ### backend/requirements.txt
 ```
@@ -119,7 +119,7 @@ leadpilot/
 flowchart TB
     FORMS["📝 Formulaires\nTypeform / Tally / Google Forms"] -->|webhook| API
 
-    subgraph VM["🖥️ VM — Docker Compose (port 3022)"]
+    subgraph VM["🖥️ VM — Docker Compose (port 3004)"]
         NEXT["Next.js 14\nSales Dashboard"]
         API["FastAPI\nWebhook + API"]
         CELERY["Celery Workers\nPipeline async"]
@@ -393,7 +393,7 @@ services:
     expose: ["3000"]
   nginx:
     image: nginx:alpine
-    ports: ["3022:80"]
+    ports: ["3004:80"]
     depends_on: [backend, frontend]
 volumes:
   pg_data:

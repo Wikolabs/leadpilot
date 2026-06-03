@@ -1,23 +1,41 @@
-# MVP exécutable : backend FastAPI (SQLite) + frontend Next.js, exposé sur le port 3022.
-# La stack complète (Postgres, Redis, Celery, Nginx) est décrite dans le README.
+version: "3.9"
+
+# LeadPilot demo - production deployment.
+# 2 services orchestrated:
+#   - leadpilot (Next.js frontend on host port 3004, basePath /offers/leadpilot/demo)
+#   - leadpilot-backend (FastAPI + SQLite, internal only on 8000)
+# Shared external network wkdemo-net (created once by deploy.yml) avoids
+# Docker default address-pool exhaustion across all LP stacks.
+
 services:
-  backend:
-    build: ./backend
+  leadpilot-backend:
+    image: ghcr.io/wikolabs/leadpilot-backend:latest
+    container_name: leadpilot-backend
+    restart: unless-stopped
     environment:
       DATABASE_URL: "sqlite:////data/leadpilot.db"
     volumes:
       - lp_data:/data
-    expose:
-      - "8000"
-  frontend:
-    build:
-      context: ./frontend
-      args:
-        # Figé dans le build Next.js : cible du proxy /api -> service backend.
-        BACKEND_URL: "http://backend:8000"
+    networks:
+      - wkdemo_net
+
+  leadpilot:
+    image: ghcr.io/wikolabs/leadpilot:latest
+    container_name: leadpilot
+    restart: unless-stopped
     ports:
-      - "3022:3000"
+      - "3004:3000"
+    environment:
+      BACKEND_URL: "http://leadpilot-backend:8000"
     depends_on:
-      - backend
+      - leadpilot-backend
+    networks:
+      - wkdemo_net
+
 volumes:
   lp_data:
+
+networks:
+  wkdemo_net:
+    name: wkdemo-net
+    external: true
