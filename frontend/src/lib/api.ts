@@ -27,8 +27,11 @@ export type Funnel = {
   qualification_rate: number;
 };
 
+// basePath is set in next.config.mjs but Next.js doesn't auto-prefix client-side fetch().
+const BASE_PATH = "/offers/leadpilot/demo";
+
 const json = (path: string, init?: RequestInit) =>
-  fetch(`/api/v1${path}`, init).then((r) => r.json());
+  fetch(`${BASE_PATH}/api/v1${path}`, init).then((r) => r.json());
 
 export const getLeads = (): Promise<Lead[]> => json("/leads");
 export const getFunnel = (): Promise<Funnel> => json("/analytics/funnel");
