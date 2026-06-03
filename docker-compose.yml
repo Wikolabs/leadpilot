@@ -17,7 +17,9 @@ services:
     volumes:
       - lp_data:/data
     networks:
-      - wkdemo_net
+      wkdemo_net:
+        aliases:
+          - backend
 
   leadpilot:
     image: ghcr.io/wikolabs/leadpilot:latest
