@@ -1,4 +1,4 @@
-"""Moteur de scoring ICP — score pondéré 0–100 + verdict cible / hors-cible.
+﻿"""Moteur de scoring ICP · score pondéré 0–100 + verdict cible / hors-cible.
 
 Total = score_icp (0-100) + score_message (0-30), plafonné à 100.
 Le score message peut donc transformer un lead borderline (60-69) en lead qualifié.

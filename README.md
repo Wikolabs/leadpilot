@@ -1,4 +1,4 @@
-﻿# LeadPilot — Qualification de leads B2B en pilote automatique (Enrichissement + Scoring ICP)
+﻿# LeadPilot · Qualification de leads B2B en pilote automatique (Enrichissement + Scoring ICP)
 
 > Ne perdez plus de temps avec les faux profils. Enrichissement + scoring ICP en < 2s. 97% des profils hors-cible filtrés avant votre CRM. Déployé en 1 heure.
 
@@ -29,7 +29,7 @@ LeadPilot est une plateforme d'automatisation commerciale qui qualifie les leads
 | [`RUN.md`](RUN.md) | Comment lancer et tester (local ou Docker) |
 | [`SCENARIO.md`](SCENARIO.md) | Script de démonstration de bout en bout |
 
-> **MVP exécutable :** l'enrichissement est mocké (déterministe, sans clé API) et les effets CRM/email sont journalisés — l'app se lance et se démontre sans aucune dépendance externe. Le chemin de passage en réel (Hunter.io, Pipedrive, Resend) est documenté dans [RUN.md](RUN.md). La stack « production » ci-dessous (Postgres, Redis, Celery) est la cible de déploiement.
+> **MVP exécutable :** l'enrichissement est mocké (déterministe, sans clé API) et les effets CRM/email sont journalisés · l'app se lance et se démontre sans aucune dépendance externe. Le chemin de passage en réel (Hunter.io, Pipedrive, Resend) est documenté dans [RUN.md](RUN.md). La stack « production » ci-dessous (Postgres, Redis, Celery) est la cible de déploiement.
 
 ---
 
@@ -119,7 +119,7 @@ leadpilot/
 flowchart TB
     FORMS["📝 Formulaires\nTypeform / Tally / Google Forms"] -->|webhook| API
 
-    subgraph VM["🖥️ VM — Docker Compose (port 3004)"]
+    subgraph VM["🖥️ VM · Docker Compose (port 3004)"]
         NEXT["Next.js 14\nSales Dashboard"]
         API["FastAPI\nWebhook + API"]
         CELERY["Celery Workers\nPipeline async"]
@@ -143,7 +143,7 @@ flowchart TB
     ENRICH --> REDIS
 ```
 
-### Séquence — Qualification d'un lead entrant
+### Séquence · Qualification d'un lead entrant
 
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1e3a8a', 'primaryTextColor': '#fff', 'lineColor': '#374151'}}}%%
@@ -238,7 +238,7 @@ erDiagram
 ## PRD
 
 ### Problème
-Les équipes commerciales B2B reçoivent un flux massif de leads inbound dont une large part est hors-cible (emails personnels, freelances, étudiants, concurrents, mauvaise taille d'entreprise). Le tri manuel — rechercher chaque entreprise sur LinkedIn, vérifier la taille, le poste — coûte ~15 min par lead, génère de la fatigue, et pollue le CRM de faux profils qui faussent les prévisions de vente.
+Les équipes commerciales B2B reçoivent un flux massif de leads inbound dont une large part est hors-cible (emails personnels, freelances, étudiants, concurrents, mauvaise taille d'entreprise). Le tri manuel · rechercher chaque entreprise sur LinkedIn, vérifier la taille, le poste · coûte ~15 min par lead, génère de la fatigue, et pollue le CRM de faux profils qui faussent les prévisions de vente.
 
 ### Solution
 LeadPilot capte chaque soumission de formulaire, enrichit l'email automatiquement, applique un scoring ICP pondéré, et route en moins de 2 secondes : les leads cibles atterrissent dans le CRM prêts à être contactés avec notification commerciale, les hors-cible reçoivent un refus poli. Zéro tri manuel, zéro faux profil dans le CRM, 24/7.
@@ -403,17 +403,17 @@ volumes:
 
 ## Roadmap
 
-### Phase 1 — MVP
+### Phase 1 · MVP
 - [ ] Webhook ingestion multi-formulaires (Typeform, Tally, Google Forms)
 - [ ] Enrichissement Hunter.io + cache Redis
 - [ ] Scoring ICP pondéré + routing CRM / refus
 
-### Phase 2 — Configuration & visibilité
+### Phase 2 · Configuration & visibilité
 - [ ] ICP Rule Builder no-code
 - [ ] Dashboard funnel + analytics par source
 - [ ] Templates de refus multilingues
 
-### Phase 3 — Échelle & conformité
+### Phase 3 · Échelle & conformité
 - [ ] Support HubSpot + Salesforce
 - [ ] Audit log RGPD + droit à l'oubli
 - [ ] Scoring enrichi par signaux d'intention (visites site, ouverture emails)
@@ -424,4 +424,4 @@ volumes:
 
 ---
 
-*Un produit [Wikolabs](https://wikolabs.com) — Intelligence artificielle appliquée aux métiers*
+*Un produit [Wikolabs](https://wikolabs.com) · Intelligence artificielle appliquée aux métiers*

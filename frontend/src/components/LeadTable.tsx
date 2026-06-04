@@ -1,11 +1,11 @@
-"use client";
+﻿"use client";
 
 import type { Lead, MessageSignals } from "@/lib/api";
 import { useLang } from "./LangProvider";
 import { ScoreGauge } from "./ScoreGauge";
 import { StatusBadge } from "./StatusBadge";
 
-const dash = <span className="text-muted">—</span>;
+const dash = <span className="text-muted"> · </span>;
 
 function IntentCell({ score, signals }: { score: number; signals?: MessageSignals }) {
   if (!score && !signals) return dash;

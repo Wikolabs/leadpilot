@@ -2,16 +2,16 @@
 
 Le MVP est **réellement exécutable** : backend FastAPI (webhook → enrichissement mocké sans clé API → scoring ICP → routing) + frontend Next.js 14.
 
-## Option 1 — Docker (tout-en-un, recommandé)
+## Option 1 · Docker (tout-en-un, recommandé)
 
 ```powershell
 docker compose up --build
 ```
 Dashboard **Next.js** sur **http://localhost:3004**. C'est tout.
 
-## Option 2 — Local (backend + frontend séparés)
+## Option 2 · Local (backend + frontend séparés)
 
-**Terminal 1 — backend (port 3004) :**
+**Terminal 1 · backend (port 3004) :**
 ```powershell
 cd backend
 python -m venv .venv
@@ -20,7 +20,7 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --port 3004
 ```
 
-**Terminal 2 — frontend Next.js (port 3000) :**
+**Terminal 2 · frontend Next.js (port 3000) :**
 ```powershell
 cd frontend
 npm install

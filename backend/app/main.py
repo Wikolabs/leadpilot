@@ -1,4 +1,4 @@
-"""LeadPilot — API de qualification de leads B2B (MVP exécutable).
+﻿"""LeadPilot · API de qualification de leads B2B (MVP exécutable).
 
 Pipeline synchrone : webhook -> enrichissement -> analyse du message -> scoring ICP -> routing.
 Sert aussi un dashboard intégré sur `/`.

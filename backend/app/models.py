@@ -1,4 +1,4 @@
-"""Modèle de données — un lead porte son enrichissement et son scoring (MVP)."""
+﻿"""Modèle de données · un lead porte son enrichissement et son scoring (MVP)."""
 import datetime
 import uuid
 

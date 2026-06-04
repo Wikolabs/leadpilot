@@ -1,4 +1,4 @@
-"""Analyse contextuelle du message du prospect.
+﻿"""Analyse contextuelle du message du prospect.
 
 Extrait 4 signaux d'intention (budget / timing / besoin / concurrent) et calcule
 un bonus de score 0-30 qui s'ajoute au score ICP structurel.
@@ -40,7 +40,7 @@ Règles :
 - timing_mentioned : true si une échéance est mentionnée ("ce trimestre", "Q1", "asap", "urgent", "dans 30 jours", "next month"...)
 - timing_days : nombre de jours approximatif jusqu'à la décision, sinon null
 - has_specific_need : true si le prospect décrit un besoin précis avec contexte métier (>3 mots), false si vague ("juste curieux", "pour info")
-- mentions_competitor : true si un nom d'outil/concurrent est cité (HubSpot, Salesforce, Pipedrive, Apollo, etc.) — signal de shopping comparatif
+- mentions_competitor : true si un nom d'outil/concurrent est cité (HubSpot, Salesforce, Pipedrive, Apollo, etc.) · signal de shopping comparatif
 - urgency_score : 0 (pas d'urgence) à 10 (très urgent, "asap", "today", "fire")
 
 Si le message est vide ou non interprétable, renvoie tous les booléens à false, tous les null/0.

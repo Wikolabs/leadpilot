@@ -1,15 +1,15 @@
-export type Lang = "fr" | "en";
+﻿export type Lang = "fr" | "en";
 
 export type Dict = (typeof translations)["fr"];
 
 export const translations = {
   fr: {
     subtitle:
-      "Qualification de leads B2B en pilote automatique — enrichissement + scoring ICP",
+      "Qualification de leads B2B en pilote automatique · enrichissement + scoring ICP",
     hero: {
       badge: "Automatisation commerciale B2B",
       tagline:
-        "Ne perdez plus de temps avec les faux profils. LeadPilot enrichit, score et trie vos leads entrants automatiquement — vous ne parlez qu'aux bons.",
+        "Ne perdez plus de temps avec les faux profils. LeadPilot enrichit, score et trie vos leads entrants automatiquement · vous ne parlez qu'aux bons.",
       ctaPrimary: "Essayer la démo",
       ctaSecondary: "Comment ça marche",
       metrics: [
@@ -29,7 +29,7 @@ export const translations = {
       badge: "En coulisses",
       title: "Le workflow d'automatisation",
       subtitle:
-        "Le même processus, orchestré en no-code avec n8n — importable tel quel.",
+        "Le même processus, orchestré en no-code avec n8n · importable tel quel.",
       caption: "Workflow n8n : workflow-qualification-leads.json",
       target: "cible",
       off: "hors-cible",
@@ -115,11 +115,11 @@ export const translations = {
     footerProduct: "Un produit Wikolabs",
   },
   en: {
-    subtitle: "B2B lead qualification on autopilot — enrichment + ICP scoring",
+    subtitle: "B2B lead qualification on autopilot · enrichment + ICP scoring",
     hero: {
       badge: "B2B sales automation",
       tagline:
-        "Stop wasting time on fake profiles. LeadPilot enriches, scores and sorts your inbound leads automatically — you only talk to the right ones.",
+        "Stop wasting time on fake profiles. LeadPilot enriches, scores and sorts your inbound leads automatically · you only talk to the right ones.",
       ctaPrimary: "Try the demo",
       ctaSecondary: "How it works",
       metrics: [
@@ -138,7 +138,7 @@ export const translations = {
     workflow: {
       badge: "Behind the scenes",
       title: "The automation workflow",
-      subtitle: "The same process, orchestrated no-code with n8n — ready to import.",
+      subtitle: "The same process, orchestrated no-code with n8n · ready to import.",
       caption: "n8n workflow: workflow-qualification-leads.json",
       target: "target",
       off: "off-target",
