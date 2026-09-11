@@ -8,12 +8,12 @@ export function Hero() {
   return (
     <header className="relative overflow-hidden border-b border-border">
       {/* halo décoratif */}
-      <div className="pointer-events-none absolute -top-32 left-1/2 h-72 w-[40rem] -translate-x-1/2 rounded-full bg-blue-600/20 blur-3xl" />
+      <div className="pointer-events-none absolute -top-32 left-1/2 h-72 w-[40rem] -translate-x-1/2 rounded-full bg-blue-600/10 blur-3xl" />
 
       <div className="relative mx-auto max-w-5xl px-4 py-5 sm:px-8 sm:py-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-lg font-semibold">
-            <span className="grid h-7 w-7 place-items-center rounded-lg bg-blue-600 text-sm text-white">
+            <span className="grid h-7 w-7 place-items-center rounded-lg bg-blue-600 text-sm text-[#15171C]">
               L
             </span>
             Lead<span className="-ml-1.5 text-blue-500">Pilot</span>
@@ -35,7 +35,7 @@ export function Hero() {
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
             <a
               href="#demo"
-              className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:brightness-110"
+              className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-[#15171C] hover:brightness-110"
             >
               {t.hero.ctaPrimary}
             </a>

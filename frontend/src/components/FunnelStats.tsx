@@ -19,7 +19,7 @@ export function FunnelStats({ funnel }: { funnel: Funnel | null }) {
           className="min-w-[140px] flex-1 rounded-xl border border-border bg-card p-4"
         >
           <div className="text-2xl font-bold">{n}</div>
-          <div className="text-xs uppercase tracking-wide text-muted">{label}</div>
+          <div className="text-xs text-muted">{label}</div>
         </div>
       ))}
     </div>

@@ -13,8 +13,8 @@ export function LangSwitch() {
         <button
           key={l}
           onClick={() => setLang(l)}
-          className={`px-3 py-1.5 font-semibold uppercase transition-colors ${
-            lang === l ? "bg-blue-600 text-white" : "text-muted hover:bg-card"
+          className={`px-3 py-1.5 font-semibold transition-colors ${
+            lang === l ? "bg-blue-600 text-[#15171C]" : "text-muted hover:bg-card"
           }`}
         >
           {l}

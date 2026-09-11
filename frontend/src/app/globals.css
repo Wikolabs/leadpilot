@@ -3,6 +3,8 @@
 @tailwind utilities;
 
 body {
-  background: #0f172a;
-  color: #e2e8f0;
+  background: #1A1420;
+  color: #F2ECF1;
+  font-family: 'Instrument Sans', system-ui, sans-serif;
 }
+h1, h2, h3 { font-family: 'Bricolage Grotesque', 'Instrument Sans', sans-serif; letter-spacing: -0.02em; }

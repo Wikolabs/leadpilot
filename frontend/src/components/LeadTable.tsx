@@ -5,7 +5,7 @@ import { useLang } from "./LangProvider";
 import { ScoreGauge } from "./ScoreGauge";
 import { StatusBadge } from "./StatusBadge";
 
-const dash = <span className="text-muted"> · </span>;
+const dash = <span className="text-muted">, </span>;
 
 function IntentCell({ score, signals }: { score: number; signals?: MessageSignals }) {
   if (!score && !signals) return dash;
@@ -22,7 +22,7 @@ function IntentCell({ score, signals }: { score: number; signals?: MessageSignal
     typeof signals?.urgency_score === "number" ? `Urgence ${signals.urgency_score}/10` : null,
   ]
     .filter(Boolean)
-    .join(" · ");
+    .join(", ");
   return (
     <div className="flex items-center gap-1.5" title={title || undefined}>
       <span className="rounded-md bg-amber-500/15 px-1.5 py-0.5 text-[11px] font-semibold text-amber-300">
@@ -49,7 +49,7 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
     <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
       <table className="w-full min-w-[720px] border-collapse">
         <thead>
-          <tr className="text-[11px] uppercase text-muted">
+          <tr className="text-[11px] text-muted">
             {headers.map((h) => (
               <th key={h} className="border-b border-border px-2 py-2.5 text-left font-semibold">
                 {h}

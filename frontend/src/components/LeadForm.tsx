@@ -89,7 +89,7 @@ export function LeadForm({
         </label>
         <button
           type="submit"
-          className="self-start rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white hover:brightness-110"
+          className="self-start rounded-lg bg-blue-600 px-4 py-2 font-semibold text-[#15171C] hover:brightness-110"
         >
           {t.form.submit}
         </button>
